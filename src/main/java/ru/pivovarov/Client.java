@@ -2,13 +2,8 @@ package ru.pivovarov;
 
 import java.io.*;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Scanner;
 
 public class Client {
@@ -18,7 +13,6 @@ public class Client {
     private final BufferedReader inputUser;
     private final String nickname;
     private static final String settings = "settings.txt";
-    private static final String dateFormatLogger = "HH:mm dd.MM.yy";
 
     public Client(String ip, int port) throws IOException {
 
@@ -30,14 +24,12 @@ public class Client {
 
         this.nickname = chooseNickname();
 
-        SimpleDateFormat formatter = new SimpleDateFormat(dateFormatLogger);
         new Thread(() -> {
             try {
                 while (true) {
                     final String str = in.readLine();
                     if (str.equals("/exit")) {
                         closeSocket();
-                        break;
                     }
                     System.out.println(str);
                 }
@@ -46,13 +38,13 @@ public class Client {
         }).start();
 
         new Thread(() -> {
-            while (true) {
+            while (!Thread.currentThread().isInterrupted()) {
                 try {
                     final String userWord = inputUser.readLine();
                     if (userWord.equals("/exit")) {
                         out.write("/exit" + "\n");
+                        Thread.currentThread().interrupt();
                         closeSocket();
-                        break;
                     } else {
                         String localDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
                         out.write("(" + localDateTime + ")" + " " + nickname + ": " + userWord + "\n");

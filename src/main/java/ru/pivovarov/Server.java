@@ -30,11 +30,10 @@ public class Server {
             }
 
             try {
-                while (true) {
+                while (!Thread.currentThread().isInterrupted()) {
                     final String word = in.readLine();
-                    if (word.equals("/stop")) {
+                    if (word.equals("/exit")) {
                         this.downService();
-                        break;
                     }
                     System.out.println(word);
                     fileWriter.write(word + "\n");
